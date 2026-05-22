@@ -38,8 +38,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await authService.login({ email, password });
-      setUser(response.data.user);
+      const user = await authService.login({ email, password });
+      setUser(user);
     } finally {
       setIsLoading(false);
     }
@@ -48,8 +48,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (name: string, email: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await authService.register({ name, email, password });
-      setUser(response.data.user);
+      const user = await authService.register({ name, email, password });
+      setUser(user);
     } finally {
       setIsLoading(false);
     }

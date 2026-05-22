@@ -24,9 +24,7 @@ export function AIExtractor({ onExtract }: AIExtractorProps) {
 
     setIsLoading(true);
     try {
-      const extracted = await aiService.extractFromReceipt({
-        receiptText,
-      });
+      const extracted = await aiService.extractFromReceipt(receiptText);
       setResult(extracted);
       if (onExtract) {
         onExtract({

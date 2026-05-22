@@ -13,16 +13,18 @@ export interface Expense {
 export interface ExpenseCreate {
   amount: number;
   category: string;
-  description: string;
   date: string;
+  note?: string;
+  description?: string;
   receipt?: string;
 }
 
 export interface ExpenseUpdate {
   amount?: number;
   category?: string;
-  description?: string;
   date?: string;
+  note?: string;
+  description?: string;
   receipt?: string;
 }
 
@@ -35,6 +37,7 @@ export interface ExpenseStats {
 }
 
 export interface ExpenseFilters {
+  month?: string;
   startDate?: string;
   endDate?: string;
   category?: string;
