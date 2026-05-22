@@ -1,5 +1,16 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1';
-const TOKEN_KEY = 'auth_token';
+// ── API base URL ─────────────────────────────────────────────
+// Must be set via VITE_API_BASE_URL in .env.local (never hardcode here)
+const BASE_URL = import.meta.env.VITE_API_BASE_URL as string | undefined;
+
+if (!BASE_URL) {
+  throw new Error(
+    '[api] VITE_API_BASE_URL is not set. ' +
+    'Create a .env.local file with VITE_API_BASE_URL=<your-api-url>',
+  );
+}
+
+// ── Token storage keys ───────────────────────────────────────
+const TOKEN_KEY         = 'auth_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 
 type RequestOptions = RequestInit & {
@@ -29,7 +40,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   let url = `${BASE_URL}${endpoint}`;
   if (params) {
     const qs = new URLSearchParams(
-      Object.entries(params).map(([k, v]) => [k, String(v)])
+      Object.entries(params).map(([k, v]) => [k, String(v)]),
     );
     url += `?${qs.toString()}`;
   }
@@ -37,7 +48,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
-  
+
   if (init.headers && typeof init.headers === 'object') {
     Object.assign(headers, init.headers);
   }
@@ -47,10 +58,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(url, {
-    ...init,
-    headers,
-  });
+  const res = await fetch(url, { ...init, headers });
 
   if (res.status === 401) {
     clearAuthTokens();

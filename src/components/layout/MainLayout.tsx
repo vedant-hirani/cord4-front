@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, LogOut, LayoutDashboard, Sparkles, Wallet } from 'lucide-react';
+import { Menu, X, LogOut, LayoutDashboard, Sparkles, Wallet, List } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface MainLayoutProps {
@@ -9,9 +9,10 @@ interface MainLayoutProps {
 }
 
 const NAV_ITEMS = [
-  { icon: LayoutDashboard, label: 'Dashboard',    path: '/dashboard'  },
-  { icon: Wallet,          label: 'Budgets',      path: '/budgets'    },
-  { icon: Sparkles,        label: 'AI Parser',    path: '/ai-parser'  },
+  { icon: LayoutDashboard, label: 'Dashboard',  path: '/dashboard'  },
+  { icon: List,            label: 'Expenses',   path: '/expenses'   },
+  { icon: Wallet,          label: 'Budgets',    path: '/budgets'    },
+  { icon: Sparkles,        label: 'AI Parser',  path: '/ai-parser'  },
 ];
 
 export function MainLayout({ children }: MainLayoutProps) {

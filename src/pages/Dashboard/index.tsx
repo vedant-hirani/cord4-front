@@ -14,7 +14,7 @@ import { analyticsService } from '@/services/analyticsService';
 import type { RangeType, AnalyticsData } from '@/services/analyticsService';
 import type { Expense } from '@/types/expense';
 import type { BudgetAlert } from '@/types/budget';
-import { DollarSign, TrendingUp, AlertTriangle, Receipt, Plus, Download } from 'lucide-react';
+import { DollarSign, TrendingUp, AlertTriangle, Receipt, Plus, Download, FileDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const currentMonth = new Date().toISOString().slice(0, 7);
@@ -118,6 +118,14 @@ export default function Dashboard() {
     }
   };
 
+  const handleExportPDF = async () => {
+    try {
+      await expensesService.exportPDF({ month: currentMonth });
+    } catch (err) {
+      console.error('PDF export error:', err);
+    }
+  };
+
   const handleExpenseAdded = () => {
     setIsModalOpen(false);
     loadExpenses();
@@ -142,12 +150,8 @@ export default function Dashboard() {
   // Total spending — from analytics (reflects selected range)
   const totalSpent = analytics?.totalSpending ?? 0;
 
-  // Transaction count — sum of count across all categories in analytics
-  // This reflects the selected range, not just current month
-  const totalTxnCount = (analytics?.categoryBreakdown ?? []).reduce(
-    (sum, cat) => sum + (cat.count ?? 0),
-    0,
-  );
+  // Transaction count — actual number of expense records for the current month
+  const totalTxnCount = expenses.length;
 
   // Budget stats — only meaningful for non-yearly ranges
   const budgetUsage      = analytics?.budgetUsage ?? [];
@@ -169,7 +173,11 @@ export default function Dashboard() {
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={handleExportCSV}>
               <Download size={15} />
-              Export CSV
+              CSV
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportPDF}>
+              <FileDown size={15} />
+              PDF
             </Button>
             <Button size="sm" onClick={() => setIsModalOpen(true)}>
               <Plus size={15} />
@@ -194,13 +202,13 @@ export default function Dashboard() {
             subtext={periodLabel}
           />
 
-          {/* 2 — Transactions (count from analytics categoryBreakdown, reflects range) */}
+          {/* 2 — Transactions — actual count of expense records this month */}
           <StatsCard
             icon={<Receipt size={20} />}
             label="Transactions"
-            value={totalTxnCount}
+            value={expenses.length}
             color="blue"
-            subtext={`${periodLabel} · across all categories`}
+            subtext="This month"
           />
 
           {/* 3 & 4 — Budget cards: hidden for yearly (budget is month-scoped) */}

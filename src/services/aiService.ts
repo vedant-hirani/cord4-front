@@ -15,7 +15,7 @@
 // Accepted file types: jpeg, jpg, png, gif, pdf, csv
 // (validated by backend MIME + extension guard)
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
+import { config } from '@/lib/config';
 
 function getAuthHeader(): Record<string, string> {
   const token = localStorage.getItem('auth_token');
@@ -36,7 +36,7 @@ export const aiService = {
    * Backend uses fast text model.
    */
   async extractFromText(rawText: string): Promise<AIExtractResult> {
-    const res = await fetch(`${BASE_URL}/ai/extract`, {
+    const res = await fetch(`${config.apiBaseUrl}/ai/extract`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -62,13 +62,12 @@ export const aiService = {
    */
   async extractFromFile(file: File, rawText?: string): Promise<AIExtractResult> {
     const form = new FormData();
-    form.append('receipt', file);           // field name must be "receipt"
+    form.append('receipt', file);
     if (rawText?.trim()) {
       form.append('rawText', rawText.trim());
     }
 
-    // Do NOT set Content-Type header — browser sets it with correct boundary
-    const res = await fetch(`${BASE_URL}/ai/extract`, {
+    const res = await fetch(`${config.apiBaseUrl}/ai/extract`, {
       method: 'POST',
       headers: { ...getAuthHeader() },
       body: form,

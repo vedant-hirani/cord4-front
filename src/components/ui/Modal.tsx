@@ -10,57 +10,67 @@ interface ModalProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
+const sizeClasses: Record<string, string> = {
+  sm: 'max-w-sm',
+  md: 'max-w-md',
+  lg: 'max-w-lg',
+};
+
 export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
-  const sizeClasses: Record<string, string> = {
-    sm: 'max-w-sm',
-    md: 'max-w-md',
-    lg: 'max-w-lg',
-  };
+  // Close on Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    if (isOpen) window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [isOpen, onClose]);
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
           <motion.div
+            key="backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
-          <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className={`${sizeClasses[size]} w-full bg-white rounded-lg shadow-xl`}
-            >
-              {title && (
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                  <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-                  <button
-                    onClick={onClose}
-                    className="text-gray-500 hover:text-gray-700 transition-colors"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
-              )}
-              <div className="px-6 py-4">{children}</div>
-            </motion.div>
-          </div>
-        </>
+
+          {/* Panel */}
+          <motion.div
+            key="panel"
+            initial={{ opacity: 0, scale: 0.96, y: 12 }}
+            animate={{ opacity: 1, scale: 1,    y: 0  }}
+            exit={{   opacity: 0, scale: 0.96, y: 12  }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+            className={`relative z-10 w-full ${sizeClasses[size]} rounded-2xl bg-white shadow-2xl ring-1 ring-black/5`}
+          >
+            {/* Header */}
+            {title && (
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <h2 className="text-base font-semibold text-gray-900">{title}</h2>
+                <button
+                  onClick={onClose}
+                  className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                  aria-label="Close"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            )}
+
+            {/* Body */}
+            <div className="px-6 py-5">{children}</div>
+          </motion.div>
+        </div>
       )}
     </AnimatePresence>
   );
