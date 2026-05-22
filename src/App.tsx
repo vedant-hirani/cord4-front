@@ -1,11 +1,11 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { ThemeProvider } from '@/store/theme.context';
-import Landing from '@/pages/Landing';
+import Landing from '@/pages/Landing/index';
 import Login from '@/pages/Auth/Login';
 import Register from '@/pages/Auth/Register';
-import Dashboard from '@/pages/Dashboard';
-import NotFound from '@/pages/NotFound';
+import Dashboard from '@/pages/Dashboard/index';
+import NotFound from '@/pages/NotFound/index';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
