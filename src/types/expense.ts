@@ -1,13 +1,15 @@
 export interface Expense {
-  id: string;
-  userId: string;
+  _id?: string;   // MongoDB field from API
+  id: string;     // normalised
+  userId?: string;
+  user?: string;
   amount: number;
   category: string;
-  description: string;
+  description?: string;
+  note?: string;
   date: string;
-  receipt?: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export interface ExpenseCreate {
@@ -16,7 +18,6 @@ export interface ExpenseCreate {
   date: string;
   note?: string;
   description?: string;
-  receipt?: string;
 }
 
 export interface ExpenseUpdate {
@@ -25,15 +26,6 @@ export interface ExpenseUpdate {
   date?: string;
   note?: string;
   description?: string;
-  receipt?: string;
-}
-
-export interface ExpenseStats {
-  totalSpent: number;
-  monthlySpent: number;
-  averageExpense: number;
-  categoryBreakdown: Record<string, number>;
-  trends: { month: string; amount: number }[];
 }
 
 export interface ExpenseFilters {

@@ -1,4 +1,4 @@
-import type { AuthResponse, LoginRequest, RegisterRequest, User } from '@/types/auth';
+import type { LoginRequest, RegisterRequest, User } from '@/types/auth';
 import { api } from '@/lib/api';
 
 interface ApiResponse<T> {
@@ -12,19 +12,17 @@ interface TokenResponse {
   refreshToken: string;
 }
 
-interface RegisterResponse {
-  tokens: TokenResponse;
-  user: User;
-}
-
-interface LoginResponse {
+interface AuthData {
   tokens: TokenResponse;
   user: User;
 }
 
 export const authService = {
-  async register(data: RegisterRequest): Promise<User> {
-    const response = await api.post<ApiResponse<RegisterResponse>>('/auth/register', data);
+  async register(data: RegisterRequest & { role?: string }): Promise<User> {
+    const response = await api.post<ApiResponse<AuthData>>('/auth/register', {
+      ...data,
+      role: data.role ?? 'user',
+    });
     if (response.data?.tokens) {
       api.setAuthToken(response.data.tokens.accessToken);
       api.setRefreshToken(response.data.tokens.refreshToken);
@@ -33,7 +31,7 @@ export const authService = {
   },
 
   async login(data: LoginRequest): Promise<User> {
-    const response = await api.post<ApiResponse<LoginResponse>>('/auth/login', data);
+    const response = await api.post<ApiResponse<AuthData>>('/auth/login', data);
     if (response.data?.tokens) {
       api.setAuthToken(response.data.tokens.accessToken);
       api.setRefreshToken(response.data.tokens.refreshToken);
@@ -49,8 +47,33 @@ export const authService = {
     }
   },
 
+  async refreshTokens(): Promise<void> {
+    const refreshToken = localStorage.getItem('refresh_token');
+    if (!refreshToken) throw new Error('No refresh token');
+    const response = await api.post<ApiResponse<{ tokens: TokenResponse }>>('/auth/refresh', {
+      refreshToken,
+    });
+    if (response.data?.tokens) {
+      api.setAuthToken(response.data.tokens.accessToken);
+      api.setRefreshToken(response.data.tokens.refreshToken);
+    }
+  },
+
+  // GET /users/me — matches Postman collection
   async getCurrentUser(): Promise<User> {
-    const response = await api.get<ApiResponse<User>>('/auth/me');
+    const response = await api.get<ApiResponse<User>>('/users/me');
     return response.data;
+  },
+
+  async updateProfile(data: { name?: string; email?: string }): Promise<User> {
+    const response = await api.patch<ApiResponse<User>>('/users/me', data);
+    return response.data;
+  },
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    await api.post<ApiResponse<null>>('/users/change-password', {
+      currentPassword,
+      newPassword,
+    });
   },
 };

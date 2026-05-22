@@ -1,15 +1,16 @@
 export type BudgetStatus = 'normal' | 'warning' | 'danger';
 
+// Matches GET /budgets list item
 export interface Budget {
-  id: string;
-  userId: string;
+  _id: string;
+  id?: string;
+  userId?: string;
+  user?: string;
   category: string;
   limit: number;
   month: string;
-  spent: number;
-  status: BudgetStatus;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export interface BudgetCreate {
@@ -18,13 +19,14 @@ export interface BudgetCreate {
   month: string;
 }
 
+// Matches GET /budgets/alerts response item
 export interface BudgetAlert {
   id: string;
-  budgetId: string;
   category: string;
   limit: number;
   spent: number;
+  remaining: number;
   percentage: number;
   status: BudgetStatus;
-  message: string;
+  month?: string;
 }

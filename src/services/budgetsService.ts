@@ -7,35 +7,35 @@ interface ApiResponse<T> {
   message?: string;
 }
 
+function normalise(b: Budget): Budget {
+  return { ...b, id: b.id ?? b._id };
+}
+
 export const budgetsService = {
-  async createBudget(data: BudgetCreate): Promise<Budget> {
+  // POST /budgets — upsert a monthly category limit
+  async configureBudget(data: BudgetCreate): Promise<Budget> {
     const response = await api.post<ApiResponse<Budget>>('/budgets', data);
-    return response.data;
+    return normalise(response.data);
   },
 
-  async getBudgets(): Promise<Budget[]> {
-    const response = await api.get<ApiResponse<Budget[]>>('/budgets');
-    return response.data;
+  // GET /budgets?month=YYYY-MM — list configured budgets
+  async getBudgets(month?: string): Promise<Budget[]> {
+    const params: Record<string, string> = {};
+    if (month) params.month = month;
+    const response = await api.get<ApiResponse<Budget[]>>('/budgets', { params });
+    return (response.data ?? []).map(normalise);
   },
 
-  async getBudgetById(id: string): Promise<Budget> {
-    const response = await api.get<ApiResponse<Budget>>(`/budgets/${id}`);
-    return response.data;
-  },
-
-  async updateBudget(id: string, data: Partial<BudgetCreate>): Promise<Budget> {
-    const response = await api.put<ApiResponse<Budget>>(`/budgets/${id}`, data);
-    return response.data;
-  },
-
+  // DELETE /budgets/:id
   async deleteBudget(id: string): Promise<void> {
-    await api.delete<ApiResponse<null>>(`/budgets/${id}`);
+    await api.delete<ApiResponse<unknown>>(`/budgets/${id}`);
   },
 
+  // GET /budgets/alerts?month=YYYY-MM
   async getAlerts(month?: string): Promise<BudgetAlert[]> {
     const params: Record<string, string> = {};
     if (month) params.month = month;
     const response = await api.get<ApiResponse<BudgetAlert[]>>('/budgets/alerts', { params });
-    return response.data;
+    return response.data ?? [];
   },
 };
