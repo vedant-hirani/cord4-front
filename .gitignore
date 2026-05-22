@@ -16,6 +16,13 @@ dist-ssr
 .env.*
 !.env.example
 
+# TypeScript build cache
+*.tsbuildinfo
+
+# Vite build artifacts
+vite.config.d.ts
+vite.config.js
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
